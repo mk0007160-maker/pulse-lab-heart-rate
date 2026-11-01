@@ -40,7 +40,12 @@ jobs:
           distribution: temurin
           java-version: '17'
       - name: Install Android SDK
-        run: sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0'
+        run: |
+          SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          SDKMANAGER="$(find "$SDK/cmdline-tools" -type f -name sdkmanager | head -1)"
+          echo "Using SDK manager: $SDKMANAGER"
+          "$SDKMANAGER" --sdk_root="$SDK" --install 'platforms;android-35' 'build-tools;35.0.0'
       - name: Copy offline app to Android assets
         run: |
           mkdir -p android/app/src/main/assets
