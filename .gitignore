@@ -19,3 +19,10 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Android generated build data
+android/.gradle/
+android/build/
+android/app/build/
+android/app/src/main/assets/
+android/local.properties

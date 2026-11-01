@@ -1,0 +1,60 @@
+name: Build Pulse Lab Android APK (Free)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'android/**'
+      - 'scripts/**'
+      - '.github/workflows/build-android.yml'
+      - 'index.html'
+      - 'vite.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install web dependencies
+        run: npm ci
+      - name: Test heart-rate calculations
+        run: npm test
+      - name: Generate app icons
+        run: python3 scripts/make-icons.py
+      - name: Build offline web assets for Android
+        run: BASE_PATH='./' npm run build
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Copy offline app to Android assets
+        run: |
+          mkdir -p android/app/src/main/assets
+          cp -R dist/. android/app/src/main/assets/
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Build installable debug APK
+        working-directory: android
+        run: gradle :app:assembleDebug --no-daemon
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: PulseLab-Android-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
