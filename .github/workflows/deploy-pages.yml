@@ -36,8 +36,11 @@ jobs:
       - name: Run unit tests
         run: npm test
 
+      - name: Generate app icons
+        run: python3 scripts/make-icons.py
+
       - name: Build with GitHub Pages repository path
-        run: npm run build -- --base="/${GITHUB_REPOSITORY#*/}/"
+        run: BASE_PATH="/${GITHUB_REPOSITORY#*/}/" npm run build
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
