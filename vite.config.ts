@@ -1,3 +1,4 @@
+declare const process: { env: { BASE_PATH?: string } }
 /// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
